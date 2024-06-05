@@ -1,0 +1,30 @@
+name: Publish Docker image and Update Manifest Repo
+
+env:
+  CONFIG_REPO_NAME: helm-python-flask
+
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+
+  image-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build --tag pandudw/pythonflaskapp:${{ github.sha }} .
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    -
+        name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: memathesh/pythonflaskapp:${{ github.sha }}
